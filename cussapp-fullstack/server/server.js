@@ -14,4 +14,10 @@ app.post('/api/grievances',auth,(req,res)=>{const {title,description,category='G
 app.get('/api/grievances',auth,(req,res)=>res.json(db().grievances.filter(g=>g.userId===req.user.id)));
 app.get('/api/campus',(req,res)=>res.json([{id:1,name:'CUSAT Main Block',type:'Building',x:'12%',y:'20%'},{id:2,name:'University Library',type:'Library',x:'70%',y:'35%'},{id:3,name:'Statistics Department',type:'Department',x:'30%',y:'70%'},{id:4,name:'Union Hall',type:'Union',x:'65%',y:'75%'}]));
 app.post('/api/ask',async(req,res)=>{const q=String(req.body.question||'').toLowerCase().trim();if(!q)return res.status(400).json({error:'Question required'});let answer='I could not find a verified answer yet. Please check the official CUSAT/Union information source.';let source='CUSSApp verified knowledge base';if(q.includes('statistics'))answer='The Statistics Department is available on the CUSSApp Campus map. Open Campus and search for “Statistics Department”.';else if(q.includes('scholar'))answer='Open Opportunities → Scholarships to see currently listed scholarships, eligibility and deadlines. Each listing should link to its verified source.';else if(q.includes('report')||q.includes('issue')||q.includes('grievance'))answer='Use the Grievance section to submit an issue. You can track it through Submitted → Received → Under Review → Forwarded → Action Taken → Resolved.';const d=db();d.questions.push({id:Date.now(),question:q,answer,at:new Date().toISOString()});save(d);res.json({answer,source})});
-app.get('*',(req,res)=>res.sendFile(path.join(__dirname,'../public/index.html')));app.listen(PORT,()=>console.log(`CUSSApp running at http://localhost:${PORT}`));
+app.get('/{*splat}',(req,res)=>res.sendFile(path.join(__dirname,'../public/index.html')));
+
+if (require.main === module) {
+	app.listen(PORT,()=>console.log(`CUSSApp running at http://localhost:${PORT}`));
+}
+
+module.exports = app;
